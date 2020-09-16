@@ -1,4 +1,4 @@
-/* eslint-disable react/react-in-jsx-scope, react/jsx-filename-extension, no-unused-vars */
+/* eslint-disable react/react-in-jsx-scope, react/jsx-filename-extension, no-unused-vars, no-use-before-define */
 
 /* @jsx createElement */
 
@@ -20,39 +20,76 @@ function createElement(tagName, props, ...children) {
   return element;
 }
 
-function render(count = [0]) {
-  const handleNumber = (currNumber) => {
-    if (count.length === 1 && count[0] === 0) {
-      render([currNumber]);
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const operators = [
+  {
+    type: '+', operator: (accumulator, currentValue) => accumulator + currentValue,
+  },
+  {
+    type: '-', operator: (accumulator, currentValue) => accumulator - currentValue,
+  },
+  {
+    type: '*', operator: (accumulator, currentValue) => accumulator * currentValue,
+  },
+  {
+    type: '/', operator: (accumulator, currentValue) => accumulator / currentValue,
+  }];
+
+function render(count = 0, operands = [], reducer = undefined) {
+  const handleNumber = (selectedNumber) => {
+    const { length } = operands;
+    // init
+    if (length === 0) {
+      operands.push(selectedNumber);
+      render(selectedNumber, operands);
+      return;
     }
-    count.splice(0, 1, count[0] * 10 + currNumber);
-    render(count);
+    if (!reducer) {
+      operands.splice(length - 1, 1, operands[length - 1] * 10 + selectedNumber);
+      render(operands[length - 1], operands);
+      return;
+    }
+    if (reducer) {
+      if (operands.length === 2) {
+        operands.splice(length - 1, 1, operands[length - 1] * 10 + selectedNumber);
+        render(operands[length - 1], operands, reducer);
+        return;
+      }
+      operands.push(selectedNumber);
+      render(selectedNumber, operands, reducer);
+    }
   };
 
   const handleOperator = (operator) => {
-    console.log('operator::: ', operator);
+    if (operands.length === 0 && count > 0) {
+      operands.push(count);
+      render(count, operands, operator);
+      return;
+    }
+    if (operands.length > 1) {
+      const sum = operands.reduce(reducer);
+      render(sum, [sum], operator);
+      return;
+    }
+    render(count, operands, operator);
   };
-
-  const adder = (accumulator, currentValue) => accumulator + currentValue;
-  const subtractor = (accumulator, currentValue) => accumulator - currentValue;
-  const multiplier = (accumulator, currentValue) => accumulator * currentValue;
-  const divider = (accumulator, currentValue) => accumulator / currentValue;
 
   const element = (
     <div>
       <p>간단 계산기</p>
       <p>{count}</p>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((value) => (
+      {numbers.map((value) => (
         <button type="button" onClick={() => handleNumber(value)}>
           {value}
         </button>
       ))}
       <p>
-        {['+', '-', '*', '/', '='].map((operator) => (
+        {operators.map(({ type, operator }) => (
           <button type="button" onClick={() => handleOperator(operator)}>
-            {operator}
+            {type}
           </button>
         ))}
+        <button type="button" onClick={() => render(operands.reduce(reducer))}>=</button>
       </p>
     </div>
   );
