@@ -42,8 +42,6 @@ function render(count = 0, operands = [], reducer = undefined) {
   };
 
   const handleNumber = (selectedNumber) => {
-    const { length } = operands;
-    // init
     if (operands.length === 0) {
       operands.push(selectedNumber);
       render(selectedNumber, operands);
