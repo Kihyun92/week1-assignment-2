@@ -49,10 +49,6 @@ function render(count = 0, operands = [], reducer = undefined) {
       render(selectedNumber, operands);
       return;
     }
-    if (!reducer) {
-      handleDecimalNumber(selectedNumber);
-      return;
-    }
     if (reducer) {
       if (operands.length === 2) {
         handleDecimalNumber(selectedNumber);
@@ -60,7 +56,9 @@ function render(count = 0, operands = [], reducer = undefined) {
       }
       operands.push(selectedNumber);
       render(selectedNumber, operands, reducer);
+      return;
     }
+    handleDecimalNumber(selectedNumber);
   };
 
   const handleOperator = (operator) => {
