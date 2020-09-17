@@ -1,4 +1,4 @@
-/* eslint-disable react/react-in-jsx-scope, react/jsx-filename-extension, no-unused-vars, no-use-before-define */
+/* eslint-disable react/react-in-jsx-scope, react/jsx-filename-extension, no-unused-vars */
 
 /* @jsx createElement */
 
@@ -36,23 +36,26 @@ const operators = [
   }];
 
 function render(count = 0, operands = [], reducer = undefined) {
+  const handleDecimalNumber = (number) => {
+    operands.splice(operands.length - 1, 1, operands[operands.length - 1] * 10 + number);
+    render(operands[operands.length - 1], operands, reducer);
+  };
+
   const handleNumber = (selectedNumber) => {
     const { length } = operands;
     // init
-    if (length === 0) {
+    if (operands.length === 0) {
       operands.push(selectedNumber);
       render(selectedNumber, operands);
       return;
     }
     if (!reducer) {
-      operands.splice(length - 1, 1, operands[length - 1] * 10 + selectedNumber);
-      render(operands[length - 1], operands);
+      handleDecimalNumber(selectedNumber);
       return;
     }
     if (reducer) {
       if (operands.length === 2) {
-        operands.splice(length - 1, 1, operands[length - 1] * 10 + selectedNumber);
-        render(operands[length - 1], operands, reducer);
+        handleDecimalNumber(selectedNumber);
         return;
       }
       operands.push(selectedNumber);
